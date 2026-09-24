@@ -216,3 +216,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# fortress-gis: local-only material
+_notes/
+_archive/
+exports/
+data/**/*.parquet
+data/**/*.tif
+data/**/*.csv
+data/**/*.gpkg
+!data/**/README.md
+demos/**/*.html
