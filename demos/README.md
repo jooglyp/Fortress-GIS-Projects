@@ -1,8 +1,8 @@
 # Demos
 
 Four notebooks, one per domain, each running a workflow from input to exported artifacts and
-including the statistics or model fitting the workflow was built around. They were executed
-with `nbclient` and saved with outputs, so they read as reports without being run.
+including the statistics or model fitting the workflow was built around. Saved copies
+have no cell output; run them to see the tables, plots and maps.
 
 | notebook | runtime | needs |
 | --- | --- | --- |

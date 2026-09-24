@@ -8,7 +8,7 @@ are written once: reading rasters and tables, hex grids, dask-backed joins, hots
 regression and model comparison, map export.
 
 Each of the four analyses survives as a workflow module under `fortress_gis.domains`, a CLI
-command, and an executed notebook under `demos/`.
+command, and a notebook under `demos/`.
 
 ## What is in the package
 
@@ -31,7 +31,7 @@ src/fortress_gis/
   cli.py      `fortress-gis <domain>` commands
 datasets/     synthetic data generators used by the notebooks and tests (not part of the wheel)
 data/         input data by domain (gitignored except READMEs)
-demos/        four executed notebooks
+demos/        four notebooks (no saved output)
 exports/      notebook and CLI output (gitignored)
 tests/        pytest suite
 ```
@@ -139,8 +139,8 @@ air.export_artifacts(result, "exports/airspace")
 | `03_airspace_proximity_events` | 1.15 M real position reports (one month) | dask read and filter, windowed proximity events, travel-time hex grid, Poisson excess and rate tests, chi-square, time-filtered Kepler map |
 | `04_maritime_fuel_demand` | 6,000 synthetic telemetry records | OLS with HC3, elastic net, six-model CV leaderboard, random search, time-ordered holdout, permutation importance, residual map |
 
-All four were executed with `nbclient` before being committed; outputs are in the files. Total
-run time is about two and a half minutes on 12 cores with three dask workers.
+Run times below are from a 12 core machine with three dask workers, about two and a half
+minutes for all four. The files in git have no cell output.
 
 ## Development
 
