@@ -1,0 +1,157 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fortress-gis"
+version = "0.1.0"
+description = "Raster and vector geoprocessing, spatial statistics and ML for hydrology, oceanography, airspace and maritime data, with Kepler.gl and QGIS export."
+readme = "README.md"
+# Tested and locked on CPython 3.13.2 - see .python-version and uv.lock
+requires-python = ">=3.11,<3.14"
+license = { text = "MIT" }
+authors = [{ name = "Johannes Plambeck" }]
+keywords = ["gis", "raster", "geopandas", "dask", "hexgrid", "hotspots", "keplergl", "qgis"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "pyarrow>=16",
+    "geopandas>=1.0",
+    "shapely>=2.0",
+    "pyproj>=3.6",
+    # dask[complete] = dataframe + distributed + bokeh (Bokeh diagnostics dashboard)
+    "dask[complete]>=2024.5",
+    "distributed>=2024.5",
+    "bokeh>=3.1",
+    "dask-geopandas>=0.4",
+    "rasterio>=1.3",
+    "scipy>=1.12",
+    "statsmodels>=0.14",
+    "scikit-learn>=1.4",
+    "libpysal>=4.10",
+    "esda>=2.5",
+    "mapclassify>=2.6",
+    "matplotlib>=3.8",
+    "typer>=0.12",
+]
+
+[project.optional-dependencies]
+# Interactive Kepler.gl maps (Jupyter widget + standalone HTML export).
+viz = [
+    "keplergl==0.3.7",
+    # keplergl still imports pkg_resources (removed in setuptools 81+)
+    "setuptools>=80.10.2,<81",
+]
+# Static basemaps under matplotlib maps.
+basemap = ["contextily>=1.5"]
+# Optional Bayesian hyper-parameter search for the ml module.
+tuning = ["optuna>=3.6"]
+all = ["fortress-gis[viz,basemap,tuning]"]
+
+[project.scripts]
+fortress-gis = "fortress_gis.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/joogl/Fortress-GIS-Projects"
+Documentation = "https://github.com/joogl/Fortress-GIS-Projects/tree/main/docs"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "pandas-stubs>=2.2",
+    "pre-commit>=3.7",
+    "ipykernel>=6.29",
+    "ipywidgets>=8.1",
+    "jupyterlab>=4.2",
+    "nbconvert>=7.16",
+    "nbformat>=5.10",
+    "nbclient>=0.10",
+    { include-group = "viz" },
+]
+viz = [
+    "keplergl==0.3.7",
+    "setuptools>=80.10.2,<81",
+    "contextily>=1.5",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+# keplergl pins an old pyarrow as a build dep; build against the env pyarrow instead.
+no-build-isolation-package = ["keplergl"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fortress_gis"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/fortress_gis", "README.md", "LICENSE", "pyproject.toml"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests", "datasets"]
+target-version = "py311"
+# Notebooks are not linted or formatted; ruff can corrupt .ipynb JSON.
+exclude = ["demos", "_archive", "data", ".venv"]
+
+[tool.ruff.format]
+exclude = ["demos", "_archive"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "PL", "RUF", "NPY", "PD"]
+ignore = [
+    "PLR0913", # many arguments are natural for geoprocessing entry points
+    "PLR0912",
+    "PLR0915",
+    "PLR2004", # magic values in scientific constants
+    "PLR0917", # positional-argument count; CLI commands and numeric kernels have many
+    "PLC0415", # imports inside functions keep optional/heavy dependencies lazy
+    "PD011",   # .values is fine on GeoSeries
+    "PD101",
+    "RUF012",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/fortress_gis/cli.py" = ["B008"]
+"src/fortress_gis/viz/qgis.py" = ["E501"]  # XML/QML templates
+"tests/**" = ["S101", "E501"]
+"datasets/**" = ["PLR0913"]
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "src"
+packages = ["fortress_gis"]
+warn_unused_ignores = false
+warn_unreachable = true
+ignore_missing_imports = true
+pretty = true
+
+[tool.pytest.ini_options]
+addopts = "-q --cov=fortress_gis --cov-report=term-missing:skip-covered"
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning",
+]
+markers = [
+    "slow: long-running tests (notebook execution, the full airspace parquet)",
+]
+
+[tool.coverage.run]
+source = ["src/fortress_gis"]
+omit = ["tests/*", "src/fortress_gis/cli.py"]
+
+[tool.coverage.report]
+show_missing = true
